@@ -44,8 +44,8 @@
         src = fetchFromGitHub {
           owner = "oh-my-fish";
           repo = "plugin-brew";
-          rev = "0021f7a2491df3c88e11786df366dc2030f939bb";
-          hash = "sha256-drMyXCrgcqqbev1WmoZ3HzCe0bKzx14AJs2FxbfS26I=";
+          rev = "328fc82e1c8e6fd5edc539de07e954230a9f2cef";
+          hash = "sha256-ny82EAz0K4XYASEP/K8oxyhyumrITwC5lLRd+HScmNQ=";
         };
       }
       {
@@ -53,8 +53,8 @@
         src = fetchFromGitHub {
           owner = "oh-my-fish";
           repo = "plugin-bang-bang";
-          rev = "816c66df34e1cb94a476fa6418d46206ef84e8d3";
-          hash = "sha256-35xXBWCciXl4jJrFUUN5NhnHdzk6+gAxetPxXCv4pDc=";
+          rev = "ec991b80ba7d4dda7a962167b036efc5c2d79419";
+          hash = "sha256-oPPCtFN2DPuM//c48SXb4TrFRjJtccg0YPXcAo0Lxq0=";
         };
       }
       {
@@ -66,12 +66,27 @@
           hash = "sha256-NQa12L0zlEz2EJjMDhWUhw5cz/zcFokjuCK5ZofTn+Q=";
         };
       }
+      {
+        name = "autopair";
+        src = fetchFromGitHub {
+          owner = "jorgebucaran";
+          repo = "autopair.fish";
+          rev = "4d1752ff5b39819ab58d7337c69220342e9de0e2";
+          hash = "sha256-qt3t1iKRRNuiLWiVoiAYOu+9E7jsyECyIqZJ/oRIT1A=";
+        };
+      }
+      {
+        name = "done";
+        src = fetchFromGitHub {
+          owner = "franciscolourenco";
+          repo = "done";
+          rev = "d47f4d6551cccb0e46edfb14213ca0097ee22f9a";
+          hash = "sha256-VSCYsGjNPSFIZSdLrkc7TU7qyPVm8UupOoav5UqXPMk=";
+        };
+      }
     ];
 
     shellAliases = {
-      ls = "eza --icons";
-      ll = "eza --icons -l";
-      la = "eza --icons -a";
       gs = "git status";
       gd = "git diff";
       gc = "git commit";
@@ -84,8 +99,6 @@
       gp = "git push";
       gpl = "git pull";
       gcap = "git add && git commit && git push";
-      vi = "nvim";
-      vim = "nvim";
       cat = "bat";
       df = "duf";
       rm = "rip";
@@ -98,21 +111,15 @@
 
     interactiveShellInit = ''
       set fish_greeting
-      set -gx PNPM_HOME /Users/marshall/Library/pnpm
-      fish_add_path /Users/marshall/.spicetify
-      fish_add_path $PNPM_HOME
       fish_add_path /run/current-system/sw/bin
-      fish_add_path /Users/marshall/miniforge3/bin
       fish_add_path /Users/marshall/.bun/bin
-      set -gx LIBRARY_PATH /opt/homebrew/lib:/opt/homebrew/opt/libiconv/lib
       set -gx NIXPKGS_ALLOW_UNFREE 1
-
-      set -gx ONYX_PATH /Users/marshall/.onyx
-      fish_add_path $ONYX_PATH/bin
+      set -gx LIBRARY_PATH /opt/homebrew/lib:/opt/homebrew/opt/libiconv/lib
 
       if test "$TERM_PROGRAM" != "vscode"
         macchina
       end
+
       printf '\eP$f{"hook": "SourcedRcFileForWarp", "value": { "shell": "fish"}}\x9c'
     '';
   };

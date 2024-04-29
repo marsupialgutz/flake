@@ -7,8 +7,8 @@ with pkgs; {
   imports = with inputs; [
     pkgs/fish.nix
     pkgs/kitty.nix
+    modules/macchina.nix
 
-    nixvim.homeManagerModules.nixvim
     nix-index-database.hmModules.nix-index
   ];
 
@@ -24,50 +24,32 @@ with pkgs; {
     packages =
       [
         alejandra
-        apksigner
-        bacon
-        btop
-        bun
-        cachix
         cargo-edit
         cargo-udeps
         cmake
-        deno
         duf
-        edgedb
-        emacs29
-        erlang
         eternal-terminal
-        fd
         fend
-        fzy
         gcc
-        git-cliff
         gleam
         grc
         helix
         huniq
         hurl
         igrep
-        jq
-        jql
         keybase
         keychain
-        macchina
         monolith
         nix-output-monitor
         nix-prefetch-scripts
         nixd
-        nodejs_21
+        nodePackages_latest.nodejs
         nurl
         pinentry_mac
         pkg-config
         repgrep
-        riff
-        ripgrep
         rm-improved
         rnr
-        statix
         stylua
         tailspin
         tokei
@@ -81,20 +63,11 @@ with pkgs; {
         wget
         xcp
         xh
-        yubikey-manager
       ]
       ++ (with inputs; [
-        caligula.packages.${pkgs.system}.default
-        deadnix.packages.${pkgs.system}.default
-        nixvim-config.packages.${pkgs.system}.default
-      ])
-      ++ (with nodePackages_latest; [
-        eslint
-        pnpm
-        prettier
-        typescript
-        typescript-language-server
-        yarn
+        caligula.packages.${system}.default
+        deadnix.packages.${system}.default
+        nixvim-config.packages.${system}.default
       ])
       ++ (with darwin.apple_sdk.frameworks; [
         AppKit
@@ -107,21 +80,23 @@ with pkgs; {
         WebKit
       ]);
 
-    sessionVariables = {
-      EDITOR = "nvim";
-      VISUAL = "nvim";
-    };
-
     stateVersion = "23.05";
   };
 
   programs = {
-    eza.enable = true;
+    bacon.enable = true;
+    btop.enable = true;
+    bun.enable = true;
+    fd.enable = true;
+    fzf.enable = true;
+    git-cliff.enable = true;
     gpg.enable = true;
     nix-index-database.comma.enable = true;
     nix-index.enable = true;
+    ripgrep.enable = true;
     skim.enable = true;
     tealdeer.enable = true;
+    zoxide.enable = true;
 
     bat = {
       enable = true;
@@ -144,16 +119,21 @@ with pkgs; {
       nix-direnv.enable = true;
     };
 
-    gh = {
+    eza = {
       enable = true;
+      extraOptions = ["--icons" "--header" "--group-directories-first"];
+    };
+
+    gh = {
+      enable = false;
       settings.git_protocol = "ssh";
 
-      extensions = with pkgs; [gh-eco gh-dash gh-markdown-preview];
+      extensions = [gh-eco gh-dash gh-markdown-preview];
     };
 
     git = {
       enable = true;
-      package = pkgs.gitAndTools.gitFull;
+      package = gitAndTools.gitFull;
       userName = "pupbrained";
       userEmail = "mars@pupbrained.xyz";
       aliases."pushall" = "!git remote | xargs -L1 git push";
@@ -181,7 +161,12 @@ with pkgs; {
 
     java = {
       enable = true;
-      package = pkgs.jdk17;
+      package = jdk17;
+    };
+
+    jq = {
+      enable = true;
+      package = jql;
     };
 
     lazygit = {
@@ -197,6 +182,68 @@ with pkgs; {
         cherryPickedCommitBgColor = ["#94e2d5"];
         cherryPickedCommitFgColor = ["#89b4fa"];
         unstagedChangesColor = ["red"];
+      };
+    };
+
+    macchina = {
+      enable = true;
+
+      config = {
+        theme = "Mezora";
+        show = [
+          "Kernel"
+          "Machine"
+          "OperatingSystem"
+          "Resolution"
+          "Uptime"
+          "LocalIP"
+          "Packages"
+          "ProcessorLoad"
+          "Memory"
+          "Battery"
+        ];
+      };
+
+      themes = {
+        Mezora = {
+          separator = "";
+          separator_color = "blue";
+          key_color = "blue";
+
+          palette = {
+            type = "Dark";
+            visible = true;
+            glyph = " ⬤ ";
+          };
+
+          box = {
+            border = "rounded";
+            visible = true;
+            inner_margin = {
+              x = 0;
+              y = 1;
+            };
+          };
+
+          bar = {
+            glyph = "○";
+            hide_delimiters = true;
+            visible = true;
+          };
+
+          keys = {
+            host = "  Host";
+            kernel = "  Kernel";
+            packages = "  Packages";
+            cpu_load = "  CPU";
+            memory = "  Memory";
+            battery = "  Battery";
+            resolution = "  Res";
+            uptime = "  Uptime";
+            os = "  OS";
+            machine = "  Machine";
+          };
+        };
       };
     };
 
@@ -241,32 +288,79 @@ with pkgs; {
     wezterm = {
       enable = true;
       extraConfig = ''
-        local wezterm = require 'wezterm'
-
+        local wezterm = require('wezterm')
         local c = wezterm.config_builder()
 
-        c.color_scheme = 'Catppuccin Mocha'
-        c.default_cursor_style = 'BlinkingBar'
-        c.font = wezterm.font_with_fallback({ 'Maple Mono SC NF', 'Maple Mono NF' })
-        c.font_size = 15.0
-        c.hide_tab_bar_if_only_one_tab = true
-        c.macos_window_background_blur = 20
-        c.use_fancy_tab_bar = false
-        c.window_decorations = 'RESIZE'
-        c.window_background_opacity = 0.85
-        c.window_padding = { left = 0, right = 0, top = 0, bottom = 0 }
+        function scheme_for_appearance(appearance)
+          if appearance:find 'Dark' then
+            return 'Catppuccin Mocha'
+          else
+            return 'Catppuccin Latte'
+          end
+        end
 
-        wezterm.plugin
-          .require("https://github.com/nekowinston/wezterm-bar")
-          .apply_to_config(c)
+        wezterm.plugin.require('https://github.com/nekowinston/wezterm-bar').apply_to_config(c, {
+          position = 'bottom',
+          max_width = 32,
+          dividers = 'slant_right',
+          indicator = {
+            leader = {
+              enabled = true,
+              off = ' ',
+              on = ' ',
+            },
+            mode = {
+              enabled = true,
+              names = {
+                resize_mode = 'RESIZE',
+                copy_mode = 'VISUAL',
+                search_mode = 'SEARCH',
+              },
+            },
+          },
+          tabs = {
+            numerals = 'arabic',
+            pane_count = 'subscript',
+            brackets = {
+              active = { "", ':' },
+              inactive = { "", ':' },
+            },
+          },
+          clock = {
+            enabled = true,
+            format = '%l:%M %p',
+          },
+        })
+
+        local config = {
+          font_size = 16,
+          color_scheme = scheme_for_appearance(wezterm.gui.get_appearance()),
+          front_end = 'WebGpu',
+          webgpu_power_preference = 'HighPerformance',
+          window_padding = { left = 0, right = 0, top = 0, bottom = 0 },
+          enable_scroll_bar = false,
+          use_fancy_tab_bar = false,
+          window_background_opacity = 0.8,
+          window_decorations = 'RESIZE',
+          default_cursor_style = 'BlinkingBar',
+          cursor_blink_rate = 500,
+          cursor_blink_ease_in = 'Constant',
+          cursor_blink_ease_out = 'Constant',
+          font = wezterm.font_with_fallback {
+            {
+              family = 'Victor Mono',
+              weight = 'Medium',
+            },
+          },
+          adjust_window_size_when_changing_font_size = false
+        }
+
+        for k, v in pairs(config) do
+          c[k] = v
+        end
 
         return c
       '';
-    };
-
-    zoxide = {
-      enable = true;
-      options = ["--cmd" "cd"];
     };
   };
 }

@@ -14,11 +14,7 @@
     hostName = "canis";
   };
 
-  environment.variables = {
-    EDITOR = "nvim";
-    FLAKE = "/Users/marshall/nix-config";
-    VISUAL = "nvim";
-  };
+  environment.variables.FLAKE = "/Users/marshall/nix-config";
 
   fonts = {
     fontDir.enable = true;
@@ -41,6 +37,7 @@
     daemonIOLowPriority = true;
     daemonProcessType = "Adaptive";
     distributedBuilds = true;
+    nixPath = ["nixpkgs=${inputs.nixpkgs}"];
     registry = lib.mapAttrs (_: v: {flake = v;}) inputs;
 
     settings = {
@@ -56,16 +53,19 @@
       substituters = [
         "https://cache.nixos.org"
         "https://nix-community.cachix.org"
+        "https://cache.iog.io"
       ];
 
       trusted-substituters = [
         "cache.nixos.org"
         "nix-community.cachix.org"
+        "cache.iog.io"
       ];
 
       trusted-public-keys = [
         "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
         "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+        "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ="
       ];
 
       trusted-users = ["marshall"];
@@ -84,56 +84,33 @@
     enable = true;
 
     onActivation = {
-      cleanup = "zap";
+      cleanup = "none";
       upgrade = true;
+      autoUpdate = true;
     };
 
     brews = [
-      "apktool"
-      "crystal"
-      "dune"
-      "grep"
+      {
+        name = "felixkratz/formulae/fyabai";
+        args = ["HEAD"];
+      }
       "jj"
       "libiconv"
-      "miniupnpc"
-      "pam_yubico"
       "pinentry-mac"
       "rustup-init"
-      "switchaudio-osx"
     ];
 
     casks = [
-      "alt-tab"
-      "apparency"
-      "arc"
       "balenaetcher"
       "beaver-notes-arm"
       "datweatherdoe"
       "devtoys"
-      "discord-canary"
       "doll"
-      "duckduckgo"
-      "fig"
-      "google-assistant"
-      "goneovim"
       "gpg-suite"
-      "grammarly-desktop"
-      "hiddenbar"
-      "httpie"
-      "hyper-canary"
       "jetbrains-toolbox" # Imperative IDE installs because of github copilot
-      "keka"
-      "kitty" # Installed through brew because fig doesn't work well w/ nix version
-      "lastfm"
-      "latest"
       "launchcontrol"
-      "logitech-g-hub"
-      "mullvad-browser"
       "neovide"
       "ngrok"
-      "notion-enhanced"
-      "orion"
-      "prismlauncher"
       "qlcolorcode"
       "qlimagesize"
       "qlmarkdown"
@@ -142,22 +119,14 @@
       "quicklook-csv"
       "quicklook-json"
       "quicklookase"
-      "raycast"
       "sf-symbols"
       "slimhud"
       "spaceid"
-      "steam"
       "suspicious-package"
       "telegram"
-      "temurin"
-      "tetrio"
-      "transmission"
       "ubersicht"
       "unnaturalscrollwheels"
       "utm-beta"
-      "vivaldi-snapshot"
-      "yubico-authenticator"
-      "yubico-yubikey-manager"
       "zerotier-one"
     ];
 
@@ -165,13 +134,11 @@
       "DamascenoRafael/tap"
       "Daniele-rolli/homebrew-beaver"
       "FelixKratz/formulae"
+      "homebrew/cask-drivers"
       "homebrew/cask-fonts"
       "homebrew/cask-versions"
-      "homebrew/cask-drivers"
       "homebrew/services"
     ];
-
-    masApps."Kimis - A Client for Misskey" = 1667275125;
   };
 
   programs = {

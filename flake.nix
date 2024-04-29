@@ -19,18 +19,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nixvim = {
-      url = "github:pta2002/nixvim";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     caligula.url = "github:ifd3f/caligula";
     deadnix.url = "github:astro/deadnix";
     neovim.url = "github:neovim/neovim?dir=contrib";
     nix-super.url = "github:privatevoid-net/nix-super";
     nixvim-config.url = "github:pupbrained/nixvim";
     nurl.url = "github:nix-community/nurl";
-    nvfetcher.url = "github:berberman/nvfetcher";
     treefmt-nix.url = "github:numtide/treefmt-nix";
   };
 
@@ -62,15 +56,11 @@
     };
 
     devShells.${system}.default = pkgs.mkShellNoCC {
-      packages = with pkgs;
-        [
-          alejandra
-          git
-          nixd
-        ]
-        ++ (with inputs; [
-          nvfetcher.packages.${system}.default
-        ]);
+      packages = with pkgs; [
+        alejandra
+        git
+        statix
+      ];
     };
   };
 }
