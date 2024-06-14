@@ -1,9 +1,9 @@
 {
   inputs,
+  lib,
   pkgs,
   ...
-}:
-with pkgs; {
+}: {
   imports = with inputs; [
     pkgs/fish.nix
     pkgs/kitty.nix
@@ -22,18 +22,15 @@ with pkgs; {
 
   home = {
     packages =
-      [
+      (with pkgs; [
         alejandra
+        bit
         cargo-edit
         cargo-udeps
         cmake
         duf
         eternal-terminal
-        fend
-        gcc
-        gleam
         grc
-        helix
         huniq
         hurl
         igrep
@@ -50,6 +47,7 @@ with pkgs; {
         repgrep
         rm-improved
         rnr
+        slack
         stylua
         tailspin
         tokei
@@ -63,13 +61,13 @@ with pkgs; {
         wget
         xcp
         xh
-      ]
-      ++ (with inputs; [
-        caligula.packages.${system}.default
-        deadnix.packages.${system}.default
-        nixvim-config.packages.${system}.default
       ])
-      ++ (with darwin.apple_sdk.frameworks; [
+      ++ (with inputs; [
+        caligula.packages.${pkgs.system}.default
+        deadnix.packages.${pkgs.system}.default
+        nixvim.packages.${pkgs.system}.default
+      ])
+      ++ (with pkgs.darwin.apple_sdk.frameworks; [
         AppKit
         Carbon
         Cocoa
@@ -97,13 +95,14 @@ with pkgs; {
     skim.enable = true;
     tealdeer.enable = true;
     zoxide.enable = true;
+    zoxide.options = ["--cmd" "cd"];
 
     bat = {
       enable = true;
       config.theme = "catppuccin";
 
       themes.catppuccin = {
-        src = fetchFromGitHub {
+        src = pkgs.fetchFromGitHub {
           owner = "catppuccin";
           repo = "bat";
           rev = "ba4d16880d63e656acced2b7d4e034e4a93f74b1";
@@ -125,15 +124,20 @@ with pkgs; {
     };
 
     gh = {
-      enable = false;
+      enable = true;
       settings.git_protocol = "ssh";
 
-      extensions = [gh-eco gh-dash gh-markdown-preview];
+      extensions = with pkgs; [
+        gh-copilot
+        gh-dash
+        gh-eco
+        gh-markdown-preview
+      ];
     };
 
     git = {
       enable = true;
-      package = gitAndTools.gitFull;
+      package = pkgs.gitAndTools.gitFull;
       userName = "pupbrained";
       userEmail = "mars@pupbrained.xyz";
       aliases."pushall" = "!git remote | xargs -L1 git push";
@@ -142,6 +146,7 @@ with pkgs; {
       extraConfig = {
         init.defaultBranch = "main";
         push.autoSetupRemote = true;
+        credential.helper = "osxkeychain";
       };
 
       signing = {
@@ -161,12 +166,12 @@ with pkgs; {
 
     java = {
       enable = true;
-      package = jdk17;
+      package = pkgs.jdk17;
     };
 
     jq = {
       enable = true;
-      package = jql;
+      package = pkgs.jql;
     };
 
     lazygit = {
@@ -288,7 +293,6 @@ with pkgs; {
     wezterm = {
       enable = true;
       extraConfig = ''
-        local wezterm = require('wezterm')
         local c = wezterm.config_builder()
 
         function scheme_for_appearance(appearance)
@@ -333,26 +337,23 @@ with pkgs; {
         })
 
         local config = {
-          font_size = 16,
+          adjust_window_size_when_changing_font_size = false,
           color_scheme = scheme_for_appearance(wezterm.gui.get_appearance()),
-          front_end = 'WebGpu',
-          webgpu_power_preference = 'HighPerformance',
-          window_padding = { left = 0, right = 0, top = 0, bottom = 0 },
-          enable_scroll_bar = false,
-          use_fancy_tab_bar = false,
-          window_background_opacity = 0.8,
-          window_decorations = 'RESIZE',
-          default_cursor_style = 'BlinkingBar',
-          cursor_blink_rate = 500,
           cursor_blink_ease_in = 'Constant',
           cursor_blink_ease_out = 'Constant',
-          font = wezterm.font_with_fallback {
-            {
-              family = 'Victor Mono',
-              weight = 'Medium',
-            },
-          },
-          adjust_window_size_when_changing_font_size = false
+          cursor_blink_rate = 500,
+          default_cursor_style = 'BlinkingBar',
+          enable_scroll_bar = false,
+          font = wezterm.font('Maple Mono NF'),
+          font_size = 16,
+          front_end = 'WebGpu',
+          hide_tab_bar_if_only_one_tab = true,
+          macos_window_background_blur = 32,
+          use_fancy_tab_bar = false,
+          webgpu_power_preference = 'HighPerformance',
+          window_background_opacity = 0.85,
+          window_decorations = 'RESIZE',
+          window_padding = { left = 0, right = 0, top = 0, bottom = 0 },
         }
 
         for k, v in pairs(config) do

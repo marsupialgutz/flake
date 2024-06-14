@@ -4,10 +4,20 @@
   lib,
   ...
 }: {
-  imports = [./services/yabai.nix];
-
   security.pam.enableSudoTouchIdAuth = true;
-  services.nix-daemon.enable = true;
+
+  services = {
+    nix-daemon.enable = true;
+    skhd = {
+      enable = true;
+      package = pkgs.skhd;
+
+      skhdConfig = ''
+        alt - return : wezterm
+        alt - w : open -na "Arc"
+      '';
+    };
+  };
 
   networking = {
     computerName = "MacBook Air";
@@ -49,17 +59,16 @@
       keep-outputs = true;
       max-jobs = "auto";
       warn-dirty = false;
+      extra-sandbox-paths = ["/nix/var/cache/ccache"];
 
       substituters = [
         "https://cache.nixos.org"
         "https://nix-community.cachix.org"
-        "https://cache.iog.io"
       ];
 
       trusted-substituters = [
         "cache.nixos.org"
         "nix-community.cachix.org"
-        "cache.iog.io"
       ];
 
       trusted-public-keys = [
@@ -81,7 +90,7 @@
   };
 
   homebrew = {
-    enable = true;
+    enable = false;
 
     onActivation = {
       cleanup = "none";
@@ -109,7 +118,6 @@
       "gpg-suite"
       "jetbrains-toolbox" # Imperative IDE installs because of github copilot
       "launchcontrol"
-      "neovide"
       "ngrok"
       "qlcolorcode"
       "qlimagesize"
@@ -135,7 +143,6 @@
       "Daniele-rolli/homebrew-beaver"
       "FelixKratz/formulae"
       "homebrew/cask-drivers"
-      "homebrew/cask-fonts"
       "homebrew/cask-versions"
       "homebrew/services"
     ];
@@ -151,6 +158,33 @@
   };
 
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.overlays = [
+    (_self: super: {
+      ccacheWrapper = super.ccacheWrapper.override {
+        extraConfig = ''
+          export CCACHE_COMPRESS=1
+          export CCACHE_DIR="/nix/var/cache/ccache"
+          export CCACHE_UMASK=007
+          if [ ! -d "$CCACHE_DIR" ]; then
+            echo "====="
+            echo "Directory '$CCACHE_DIR' does not exist"
+            echo "Please create it with:"
+            echo "  sudo mkdir -m0770 '$CCACHE_DIR'"
+            echo "  sudo chown root:nixbld '$CCACHE_DIR'"
+            echo "====="
+            exit 1
+          fi
+          if [ ! -w "$CCACHE_DIR" ]; then
+            echo "====="
+            echo "Directory '$CCACHE_DIR' is not accessible for user $(whoami)"
+            echo "Please verify its access permissions"
+            echo "====="
+            exit 1
+          fi
+        '';
+      };
+    })
+  ];
 
   system = {
     keyboard.enableKeyMapping = true;

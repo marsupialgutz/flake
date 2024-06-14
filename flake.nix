@@ -2,7 +2,7 @@
   description = "Marshall's Nix-Darwin Config";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable-small";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     darwin = {
       url = "github:LnL7/nix-darwin/master";
@@ -21,9 +21,7 @@
 
     caligula.url = "github:ifd3f/caligula";
     deadnix.url = "github:astro/deadnix";
-    neovim.url = "github:neovim/neovim?dir=contrib";
-    nix-super.url = "github:privatevoid-net/nix-super";
-    nixvim-config.url = "github:pupbrained/nixvim";
+    nixvim.url = "github:pupbrained/nixvim";
     nurl.url = "github:nix-community/nurl";
     treefmt-nix.url = "github:numtide/treefmt-nix";
   };
@@ -60,6 +58,12 @@
         alejandra
         git
         statix
+        (writeScriptBin "build" ''
+          statix fix .
+          nix fmt
+          NIXPKGS_ALLOW_INSECURE=1 darwin-rebuild switch --flake ".#" --impure --show-trace
+        '')
+        (writeScriptBin "up" "nix flake update")
       ];
     };
   };

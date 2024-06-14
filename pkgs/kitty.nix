@@ -5,24 +5,14 @@ _: {
     theme = "Catppuccin-Mocha";
 
     font = {
-      name = "Victor Mono";
+      name = "Maple Mono NF";
       size = 16;
     };
 
-    keybindings = {
-      "cmd+shift+enter" = "detach_window ask";
-    };
+    keybindings."cmd+shift+enter" = "detach_window ask";
 
     extraConfig = ''
-      italic_font   Victor Mono Italic
-
-      font_features VictorMono-Medium      +ss01 +ss06
-      font_features VictorMono-Regular     +ss01 +ss06
-      font_features VictorMono-Bold        +ss01 +ss06
-      font_features VictorMono-BoldItalic  +ss01 +ss06
-      font_features VictorMono-Italic      +ss01 +ss06
-      font_features VictorMono-Light       +ss01 +ss06
-      font_features VictorMono-LightItalic +ss01 +ss06
+      modify_font   underline_position      5
     '';
 
     settings = {
